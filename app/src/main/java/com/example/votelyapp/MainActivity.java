@@ -3,6 +3,7 @@ package com.example.votelyapp;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Menu;
+import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
@@ -15,11 +16,20 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.votelyapp.databinding.ActivityMainBinding;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityMainBinding binding;
+    private FirebaseAuth mAuth;
+    private FirebaseUser user;
+    private String UID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +58,31 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
+        mAuth = FirebaseAuth.getInstance();
+        if(mAuth.getCurrentUser() != null) {
+            user = mAuth.getCurrentUser();
+            //get current user id
+            UID = user.getUid();
+
+
+          try {
+              URL yahoo = new URL("https://localhost:44305/api/user/" + UID);
+
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(
+                            yahoo.openStream()));
+
+            String inputLine;
+
+            while ((inputLine = in.readLine()) != null)
+                System.out.println(inputLine);
+
+            in.close();
+        } catch (Exception ex){
+              Toast.makeText(MainActivity.this, "user Api failed", Toast.LENGTH_SHORT).show();
+          }
+        }
     }
 
     @Override
